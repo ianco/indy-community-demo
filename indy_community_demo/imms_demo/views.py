@@ -32,6 +32,46 @@ REPO_CONSENT_PROOF = 'HA Proof of Immunization Consent'
 ########################################################################
 # Create your views here.
 ########################################################################
+def mobile_request_connection(request):
+    # user requests mobile connection to an org
+    if request.method == 'POST':
+        # generate ivitation and display a QR code
+        form = RequestMobileConnectionForm(request.POST)
+        if not form.is_valid():
+            return render(request, 'indy/form_response.html', {'msg': 'Form error', 'msg_txt': str(form.errors)})
+        else:
+            cd = form.cleaned_data
+            org = cd.get('org')
+            email = cd.get('email')
+            partner_name = email + ' (mobile)'
+
+            # get requested org and their wallet
+            org_wallet = org.wallet
+
+            # mobile user not registered locally
+            target_user = None
+            their_wallet = None
+
+            # set wallet password
+            # TODO vcx_config['something'] = raw_password
+
+            # build the connection and get the invitation data back
+            try:
+                org_connection = agent_utils.send_connection_invitation(org_wallet, partner_name)
+
+                return render(request, 'imms_demo/mobile_connection_info.html', {'org_name': org.org_name, 'connection_token': org_connection.token})
+            except Exception as e:
+                # ignore errors for now
+                print(" >>> Failed to create request for", org_wallet.wallet_name)
+                print(e)
+                return render(request, 'indy/form_response.html', {'msg': 'Failed to create request for ' + org_wallet.wallet_name})
+
+    else:
+        # populate form and get info from user
+        form = RequestMobileConnectionForm(initial={})
+        return render(request, 'imms_demo/request_mobile_connection.html', {'form': form})
+
+
 def profile_view(request):
     return render(request, 'imms_demo/imms_profile.html')
 
