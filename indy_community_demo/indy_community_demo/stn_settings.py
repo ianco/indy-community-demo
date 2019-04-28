@@ -21,6 +21,7 @@ INDY_CONFIG['vcx_genesis_url'] = 'https://raw.githubusercontent.com/sovrin-found
 # on STN, DID's must be pre-registered (based on seed)
 INDY_CONFIG['register_dids'] = False
 
-INDY_CONFIG['vcx_mobile_agency_url'] = 'https://agency.pstg.evernym.com'
-INDY_CONFIG['vcx_mobile_agency_did'] = 'LqnB96M6wBALqRZsrTTwda'
-INDY_CONFIG['vcx_mobile_agency_verkey'] = 'BpDPZHLbJFu67sWujecoreojiWZbi2dgf4xnYemUzFvB'
+# TODO looked into support for a separate obile agency
+#INDY_CONFIG['vcx_mobile_agency_url'] = 'https://agency.pstg.evernym.com'
+#INDY_CONFIG['vcx_mobile_agency_did'] = 'LqnB96M6wBALqRZsrTTwda'
+#INDY_CONFIG['vcx_mobile_agency_verkey'] = 'BpDPZHLbJFu67sWujecoreojiWZbi2dgf4xnYemUzFvB'
