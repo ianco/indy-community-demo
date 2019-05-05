@@ -33,9 +33,8 @@ provisionConfig = {
     'enterprise_seed': '000000000000000000000000Trustee1'
 }
 
-if len(sys.argv) > 1 and sys.argv[1] == '--postgres':
-    # load postgres dll and configure postgres wallet
-    load_postgres_plugin(provisionConfig)
+check_args(sys.argv, provisionConfig)
+genesis_path = check_network(sys.argv, '../genesis.txn')
 
 
 async def main():

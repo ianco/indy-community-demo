@@ -41,12 +41,8 @@ provisionConfig = {
   'enterprise_seed':'000000000000000000000000Trustee1'
 }
 
-
-if len(sys.argv) > 1 and sys.argv[1] == '--postgres':
-    # load postgres dll and configure postgres wallet
-    load_postgres_plugin(provisionConfig)
-
-    print("Success, loaded postgres wallet storage")
+check_args(sys.argv, provisionConfig)
+genesis_path = check_network(sys.argv, '../genesis.txn')
 
 
 async def main():
@@ -66,7 +62,7 @@ async def main():
     # Set some additional configuration options specific to faber
     config['institution_name'] = 'Faber'
     config['institution_logo_url'] = 'http://robohash.org/234'
-    config['genesis_path'] = '../genesis.txn'
+    config['genesis_path'] = genesis_path
     
     print("#2 Initialize libvcx with new configuration")
     await vcx_init_with_config(json.dumps(config))
