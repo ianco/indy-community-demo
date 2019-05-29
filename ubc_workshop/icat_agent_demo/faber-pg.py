@@ -19,9 +19,9 @@ external_host = "localhost"
 scripts_dir = "../scripts/"
 
 if run_mode == 'docker':
-    #internal_host = "indy-shell"
+    internal_host = "indy-shell"
     #internal_host = "host.docker.internal"
-    external_host = "host.docker.internal"
+    #external_host = "host.docker.internal"
     #scripts_dir = "scripts/"
     scripts_dir = "../../../scripts/"
 
@@ -95,7 +95,7 @@ def main():
     register_did = True
     if register_did:
         print("Registering", alias, "with seed", seed)
-        ledger_url = 'http://' + external_host + ':9000'
+        ledger_url = 'http://host.docker.internal:9000'
         headers = {"accept": "application/json"}
         data = {"alias": alias, "seed": seed, "role": "TRUST_ANCHOR"}
         resp = requests.post(ledger_url+'/register', json=data)

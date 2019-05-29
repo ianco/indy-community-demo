@@ -95,6 +95,7 @@ def s_print(*a, **b):
     """Thread safe print function"""
     with s_print_lock:
         print(*a, **b)
+    #print(*a, **b)
 
 def output_reader(proc):
     for line in iter(proc.stdout.readline, b''):
@@ -130,6 +131,7 @@ def start_agent_subprocess(agent_name, genesis, seed, endpoint_url, in_port_1, i
     # start agent sub-process
     agent_args = ['python3', scripts_dir + 'icatagent', 
             '--logging-config', './default_logging_config.ini',
+            #'--log-level', 'debug',
             '--inbound-transport', 'http', '0.0.0.0', str(in_port_1), 
             '--inbound-transport', 'http', '0.0.0.0', str(in_port_2), 
             '--inbound-transport', 'ws', '0.0.0.0', str(in_port_3),
