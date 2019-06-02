@@ -240,6 +240,32 @@ def file_ext():
     return EXTENSION[your_platform] if (your_platform in EXTENSION) else '.so'
 
 
+def check_args(sysargv, provisionConfig):
+    if not sysargv or 0 == len(sysargv):
+        return
+
+    # check if postgres is reuested
+    if '--postgres' in sysargv:
+        # load postgres dll and configure postgres wallet
+        load_postgres_plugin(provisionConfig)
+
+    # check if we are to run on sovrin test network
+    if '--stn' in sysargv:
+        provisionConfig['agency_url'] = 'http://vcx-agency.anon-solutions.ca:8080'
+        provisionConfig['agency_did'] = 'VsKV7grR1BUE29mG2Fm2kX'
+        provisionConfig['agency_verkey'] = 'Hezce2UWMZ3wUhVkh2LfKSs8nDzWwzs2Win7EzNN3YaR'
+
+        print("Success, configured for Sovrin Staging Network")
+
+
+def check_network(sysargv, default_path):
+    # check if we are to run on sovrin test network
+    if '--stn' in sysargv:
+        return '../stn-genesis.txn'
+    else:
+        return default_path
+
+
 # load postgres dll and configure postgres wallet
 def load_postgres_plugin(provisionConfig):
     print("Initializing postgres wallet")

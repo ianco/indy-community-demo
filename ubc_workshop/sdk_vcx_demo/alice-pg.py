@@ -33,9 +33,8 @@ provisionConfig = {
     'enterprise_seed': '000000000000000000000000Trustee1'
 }
 
-if len(sys.argv) > 1 and sys.argv[1] == '--postgres':
-    # load postgres dll and configure postgres wallet
-    load_postgres_plugin(provisionConfig)
+check_args(sys.argv, provisionConfig)
+genesis_path = check_network(sys.argv, '../genesis.txn')
 
 
 async def main():
@@ -55,7 +54,7 @@ async def main():
     # Set some additional configuration options specific to alice
     config['institution_name'] = 'alice'
     config['institution_logo_url'] = 'http://robohash.org/456'
-    config['genesis_path'] = '../genesis.txn'
+    config['genesis_path'] = genesis_path
 
     print("#8 Initialize libvcx with new configuration")
     await vcx_init_with_config(json.dumps(config))
