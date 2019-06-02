@@ -80,6 +80,10 @@ MAX_ATTEMPTS = 1
 AUTH_USER_MODEL = 'indy_community.IndyUser'
 INDY_ORGANIZATION_MODEL = 'indy_community.IndyOrganization'
 INDY_ORG_RELATION_MODEL = 'indy_community.IndyOrgRelationship'
+# override to create app-specific models during data loading
+#AUTH_USER_MODEL = 'imms_demo.ImmsUser'
+#INDY_ORGANIZATION_MODEL = 'imms_demo.ImmsOrganization'
+#INDY_ORG_RELATION_MODEL = 'imms_demo.ImmsRelationship'
 
 FIXTURE_DIRS = (
    'indy_community_demo/fixtures/',

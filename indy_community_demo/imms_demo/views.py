@@ -32,15 +32,66 @@ REPO_CONSENT_PROOF = 'HA Proof of Immunization Consent'
 ########################################################################
 # Create your views here.
 ########################################################################
+def mobile_request_connection(request):
+    """
+    """
+
+    # user requests mobile connection to an org
+    if request.method == 'POST':
+        # generate ivitation and display a QR code
+        form = RequestMobileConnectionForm(request.POST)
+        if not form.is_valid():
+            return render(request, 'indy/form_response.html', {'msg': 'Form error', 'msg_txt': str(form.errors)})
+        else:
+            cd = form.cleaned_data
+            org = cd.get('org')
+            email = cd.get('email')
+            partner_name = email + ' (mobile)'
+
+            # get requested org and their wallet
+            org_wallet = org.wallet
+
+            # mobile user not registered locally
+            target_user = None
+            their_wallet = None
+
+            # set wallet password
+            # TODO vcx_config['something'] = raw_password
+
+            # build the connection and get the invitation data back
+            try:
+                org_connection = agent_utils.send_connection_invitation(org_wallet, partner_name)
+
+                return render(request, 'imms_demo/mobile_connection_info.html', {'org_name': org.org_name, 'connection_token': org_connection.token})
+            except Exception as e:
+                # ignore errors for now
+                print(" >>> Failed to create request for", org_wallet.wallet_name)
+                print(e)
+                return render(request, 'indy/form_response.html', {'msg': 'Failed to create request for ' + org_wallet.wallet_name})
+
+    else:
+        # populate form and get info from user
+        form = RequestMobileConnectionForm(initial={})
+        return render(request, 'imms_demo/request_mobile_connection.html', {'form': form})
+
+
 def profile_view(request):
+    """
+    """
     return render(request, 'imms_demo/imms_profile.html')
 
 
 def wallet_view(request):
+    """
+    """
     return render(request, 'imms_demo/imms_wallet.html')
 
 
 def ha_data_view(request, org):
+    """
+    Data view for HA role.
+    """
+    
     wallet = indy_views.wallet_for_current_session(request)
     repo_connections = indy_models.AgentConnection.objects.filter(wallet=wallet, status='Active', connection_type='Outbound', partner_name=IMMS_REPO_NAME).all()
     if 0 < len(repo_connections):
@@ -64,6 +115,10 @@ def ha_data_view(request, org):
 
 
 def school_data_view(request, org):
+    """
+    Data view for School role.
+    """
+    
     wallet = indy_views.wallet_for_current_session(request)
     repo_connections = indy_models.AgentConnection.objects.filter(wallet=wallet, status='Active', partner_name=IMMS_REPO_NAME).all()
     if 0 < len(repo_connections):
@@ -84,10 +139,18 @@ def school_data_view(request, org):
 
 
 def repo_data_view(request, org):
+    """
+    Data view for User role.
+    """
+    
     return render(request, 'imms_demo/imms_data.html', {'org': org, 'org_role': org.role.name})
 
 
 def user_data_view(request, user):
+    """
+    Data view for user role.
+    """
+    
     imms_status_requests = UserImmunizationConversation.objects.all()
 
     return render(request, 'imms_demo/imms_data.html', 
@@ -98,6 +161,10 @@ def user_data_view(request, user):
 
 # dispatcher
 def data_view(request):
+    """
+    Generic data view (pluggable).
+    """
+    
     if 'ACTIVE_ORG' in request.session:
         org_id = request.session['ACTIVE_ORG']
         orgs = indy_models.IndyOrganization.objects.filter(id=org_id).all()
@@ -116,6 +183,10 @@ def data_view(request):
 
 # Health Authority simultaneously issues Health ID (to individual) and Immunization Status (to Imms Repo)
 def ha_issue_credentials(request):
+    """
+    UI for HA to issue Credentials (Health ID and Immunization Status).
+    """
+    
     if request.method == 'POST':
         form = IssueHealthIdAndImmsStatusForm(request.POST)
         if not form.is_valid():
@@ -241,6 +312,10 @@ def ha_issue_credentials(request):
 
 
 def school_request_health_id(request):
+    """
+    UI for the School to request a Health ID Proof from the parent.
+    """
+    
     if request.method == 'POST':
         form = HealthIdsProofRequestForm(request.POST)
         if not form.is_valid():
@@ -323,6 +398,13 @@ def school_request_health_id(request):
 # auto-processing for received conversations and updated conversation status
 ########################################################################
 def school_auto_receive_proofs(conversation, prev_type, prev_status, org):
+    """
+    For the School, auto-respond to Proofs.
+    When an HA ID Proof is received from the parent, issue:
+    1. a Consent Credential to the parent, to enable the parent to provide Consent to access the data
+    2. an Immunizations Proof Request to the HA to get the child's immunization status.
+    """
+    
     print("school_auto_receive_proofs", prev_type, prev_status, conversation.conversation_type, conversation.status, org)
 
     # if received Imms Proof Response from Individual, auto-send proof request to HA
@@ -487,6 +569,11 @@ def school_auto_receive_proofs(conversation, prev_type, prev_status, org):
     
 
 def repository_auto_accept_credential_offers(conversation, prev_type, prev_status, org):
+    """
+    For the Immunization Repository, auto-accept credential offers received from the HA.
+    Self-issued, essentially.
+    """
+    
     print("repository_auto_accept_credential_offers", prev_type, prev_status, conversation.conversation_type, conversation.status, org)
     connection = conversation.connection
     wallet = connection.wallet
@@ -508,6 +595,11 @@ def repository_auto_accept_credential_offers(conversation, prev_type, prev_statu
 
 
 def repository_auto_receive_credentials(conversation, prev_type, prev_status, org):
+    """
+    For the Immunization Repository, auto-accept credentials received from the HA.
+    Self-issued, essentially.
+    """
+    
     print("repository_auto_receive_credentials", prev_type, prev_status, conversation.conversation_type, conversation.status, org)
     connection = conversation.connection
     wallet = connection.wallet
@@ -516,6 +608,12 @@ def repository_auto_receive_credentials(conversation, prev_type, prev_status, or
 
 
 def repository_auto_answer_proof_requests(conversation, prev_type, prev_status, org):
+    """
+    For the Immunizations Repository, auto-respond to received Proof Requests.
+    If the School sends a Proof Request, put it on hold and send a Proof Request
+    to the parent (for Consent).
+    """
+    
     print("repository_auto_answer_proof_requests", prev_type, prev_status, conversation.conversation_type, conversation.status, org)
     connection = conversation.connection
     wallet = connection.wallet
@@ -620,6 +718,12 @@ def repository_auto_answer_proof_requests(conversation, prev_type, prev_status, 
 
 
 def repository_auto_receive_proofs(conversation, prev_type, prev_status, org):
+    """
+    For the Immunizations Repository, auto-respond to received Proofs.
+    When Consent is received from the parent, send the Proof Responst to the School
+    with the immunization status.
+    """
+    
     print("repository_auto_receive_proofs", prev_type, prev_status, conversation.conversation_type, conversation.status, org)
     connection = conversation.connection
     wallet = connection.wallet
@@ -722,11 +826,19 @@ def repository_auto_receive_proofs(conversation, prev_type, prev_status, org):
 
 
 def repository_auto_answer_connections(connection, prev_status):
+    """
+    Not used - auto respond to connection requests.
+    """    
     print("repository_auto_answer_connections", prev_status, connection.status)
     pass
 
 
 def user_auto_receive_credential_offers(conversation, prev_type, prev_status, user):
+    """
+    On receipt of a Credential Offer, add to the user's local table.
+    User still has to respond manually (to accept the Credential).
+    """
+    
     print("user_auto_receive_credential_offers()", prev_type, prev_status, conversation.conversation_type, conversation.status, user)
     
     # validate data in credential name
@@ -777,6 +889,11 @@ def user_auto_receive_credential_offers(conversation, prev_type, prev_status, us
 
 
 def user_auto_receive_proof_requests(conversation, prev_type, prev_status, user):
+    """
+    On receipt of a Proof Request, add to the user's local table.
+    User still has to respond to the Proof Request manually (to respond with the Proof).
+    """
+    
     print("user_auto_receive_proof_requests()", prev_type, prev_status, conversation.conversation_type, conversation.status, user)
 
     # validate the data in the proof request name
@@ -837,7 +954,7 @@ def user_auto_receive_proof_requests(conversation, prev_type, prev_status, user)
 
 DISPATCH_TABLE = {
     'Org': {
-        # Out "HA" is now playing the dual role of "repository" as well
+        # Our "HA" is now playing the dual role of "repository" as well
         'HA': {
             # Imms Repository will auto-receive credentials
             'CredentialOffer': repository_auto_accept_credential_offers,
@@ -882,6 +999,11 @@ DISPATCH_TABLE = {
 
 # dispatcher
 def conversation_callback(conversation, prev_type, prev_status):
+    """
+    Dispatcher for Conversation events.
+    Dispatches based on the above table, by user role and message type.
+    """
+    
     # skip dispatching if nothing has changed
     conversation_type = conversation.conversation_type
     status = conversation.status
@@ -930,6 +1052,9 @@ def conversation_callback(conversation, prev_type, prev_status):
 
 # dispatcher
 def connection_callback(connection, prev_status):
+    """
+    Dispatcher for connection ecents (not used).
+    """
     print("connection callback", prev_status, connection.status)
 
 

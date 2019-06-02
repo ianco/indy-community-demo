@@ -1,10 +1,18 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 import json
 
-# tbd once we have models
-#from .models import *
+from .models import *
+
+
+###############################################################
+# Forms to request a connection to a mobile wallet
+###############################################################
+class RequestMobileConnectionForm(forms.Form):
+    email = forms.CharField(label='Email', max_length=120)
+    org = forms.ModelChoiceField(label='Organization', queryset=IndyOrganization.objects.filter(Q(role__name='HA') | Q(role__name='School')).all())
 
 
 ###############################################################
@@ -30,6 +38,7 @@ class IssueHealthIdAndImmsStatusForm(forms.Form):
                                        choices=[('OK', 'OK'), ('Not OK', 'Not OK'), ('Unknown', 'Unknown')],
                                        help_text='"OK" or "Not OK".')
     immunization_status_date = forms.DateField()
+
 
 class HealthIdsProofRequestForm(forms.Form):
     """
