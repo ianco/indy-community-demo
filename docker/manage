@@ -246,12 +246,14 @@ rm|down)
 shell)
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose run indy-shell bash
+  docker-compose up -d indy-shell
+  docker exec -it indy_indy-shell_1 /bin/bash
   ;;
 shell2)
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose run indy-shell2 bash
+  docker-compose up -d indy-shell2
+  docker exec -it indy_indy-shell2_1 /bin/bash
   ;;
 cli)
   _startupParams=$(getStartupParamsCli $@)

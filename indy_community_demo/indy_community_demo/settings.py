@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'background_task',
     'indy_community_demo',
+    'ubc_lab4',
 ]
 
 def file_ext():
@@ -61,12 +62,12 @@ INDY_CONFIG = {
     'ledger_url': 'http://localhost:9000',
 }
 
-INDY_PROFILE_VIEW = 'indy_community.views.profile_view'
-INDY_DATA_VIEW = 'indy_community.views.data_view'
+INDY_PROFILE_VIEW = 'ubc_lab4.views.profile_view'
+INDY_DATA_VIEW = 'ubc_lab4.views.data_view'
 INDY_WALLET_VIEW = 'indy_community.views.wallet_view'
 
-INDY_CONVERSATION_CALLBACK = 'indy_community.agent_utils.conversation_callback'
-INDY_CONNECTION_CALLBACK = 'indy_community.agent_utils.connection_callback'
+INDY_CONVERSATION_CALLBACK = 'ubc_lab4.views.conversation_callback'
+INDY_CONNECTION_CALLBACK = 'ubc_lab4.views.connection_callback'
 
 BACKGROUND_TASK_RUN_ASYNC = False
 BACKGROUND_TASK_ASYNC_THREADS = 1
