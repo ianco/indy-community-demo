@@ -21,6 +21,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(url='indy/')),
     path('indy/', include('indy_community.urls')),
+    ##############################################################
+    # Lab 4 - Step 10 configure url's for the new views:
     # TODO remember to include the following if custom paths are added
     path('lab4/', include('ubc_lab4.urls')),
+    ##############################################################
 ]

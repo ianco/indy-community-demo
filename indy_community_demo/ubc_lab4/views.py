@@ -27,7 +27,8 @@ def data_view(request):
     """
     Generic data view (pluggable).
     """
-    # customize the data view
+    ##############################################################
+    # Lab 4 - Step 4 select the current org info and set of connections and pass to the template:
     if 'ACTIVE_ORG' in request.session:
         org_id = request.session['ACTIVE_ORG']
         org = indy_models.IndyOrganization.objects.filter(id=org_id).get()
@@ -50,8 +51,11 @@ def data_view(request):
                     {'org': org, 
                      'org_role': "", 
                      'connections': connections})
+    ##############################################################
 
 
+##############################################################
+# Lab 4 - Step 8 create a view to submit a credential offer for the new credential:
 def issue_training_credential(request):
     if request.method == 'POST':
         # issue a credential of Indy
@@ -97,8 +101,11 @@ def issue_training_credential(request):
         connection = connections[0]
         form = IssueCredentialForm(initial={'connection_id': connection.id})
         return render(request, 'ubc_lab4/lab4_issue_credential.html', {'form': form})
+##############################################################
 
 
+##############################################################
+# Lab 4 - Step 11 create a view to submit a request to prove the new certification:
 def request_training_proof(request):
     # request a proof of Indy
     wallet = indy_views.wallet_for_current_session(request)
@@ -124,6 +131,7 @@ def request_training_proof(request):
     issued_proof_request.save()
 
     return render(request, 'indy/form_response.html', {'msg': 'Issued request for Indy proof'})
+##############################################################
 
 
 #####################################################
@@ -133,8 +141,9 @@ def request_training_proof(request):
 def conversation_callback(conversation, prev_type, prev_status):
     print(conversation.conversation_type, conversation.status, prev_type, prev_status)
 
-    # TODO check for conversation events of interest
-    # capture received proofs in an application table
+    ##############################################################
+    # Lab 4 - Step 13 create a view to submit a request to prove the new certification:
+    # monitor received proofs and update our local table
     if conversation.conversation_type != prev_type or conversation.status != prev_status:
         if conversation.conversation_type == 'ProofRequest' and conversation.status == 'Accepted':
             print("Updating record")
@@ -143,9 +152,10 @@ def conversation_callback(conversation, prev_type, prev_status):
             proof_data = json.loads(conversation.conversation_data)
             libindy_proof = json.loads(proof_data["data"]["proof"]["libindy_proof"])
 
-            issued_proof_request = ReceivedProof.objects.filter(conversation=conversation).get()
+            issued_proof_request = ReceivedProof.objects.filter(reference=conversation).get()
             issued_proof_request.proof_data = json.dumps(libindy_proof["requested_proof"])
             issued_proof_request.save()
+    ##############################################################
 
 
 # dispatcher

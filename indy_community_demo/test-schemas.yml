@@ -99,6 +99,8 @@ Proof of DOB:
     - {'name':'last_name', 'restrictions':[{'issuer_did': '$ISSUER_DID'}]}
   predicates:
     - {'name': 'birth_date','p_type': '>=','p_value': '$VALUE', 'restrictions':[{'issuer_did': '$ISSUER_DID'}]}
+##############################################################
+# Lab 4 - Step 1 add a new Certification and Proof Request here:
 Certification of Indy:
   type: schema
   version: $generate
@@ -117,3 +119,5 @@ Proof of Indy:
     - {'name':'last_name', 'restrictions':[{'schema_name': 'Certification of Indy'}]}
     - {'name':'status', 'restrictions':[{'schema_name': 'Certification of Indy'}]}
     - {'name':'year', 'restrictions':[{'schema_name': 'Certification of Indy'}]}
+##############################################################
+
