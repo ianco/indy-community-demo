@@ -6,7 +6,67 @@
 {% block profile_content %}
     <div class='profile-tabs profile-tabs-data'>
         <div id='profiledata'>
-            TODO for lab4
+
+{% for connection in connections %}
+    <div class='newsfeed-posted-top-cont'>
+        <div class='newsfeed-posted-img-info'>
+            <div class='newsfeed-posted-img'>
+                <img src="{% static "/indy/accounticon.png" %}">
+            </div>
+            <div class='newsfeed-posted-info'>
+                <div>
+                    <a href=''>
+                        <h2>
+                            {{ connection.partner_name }}
+                            {{ connection.connection_type }}
+                            {{ connection.status }}
+                        </h2>
+                    </a>
+                </div>
+                {% if connection.connection_type == 'Outbound' and connection.status == 'Active' %}
+                <div>
+                    <h5>
+                        <a href="{% url 'lab4_issue_credential' %}?connection_id={{connection.id}}">
+                            >>> Issue Credential
+                        </a>
+                    </h5>
+                    {% for credential in connection.issuedcredential_set.all %}
+                        <h4>
+                            {{ credential.credential_type.schema_name }}
+                            {{ credential.reference.conversation_type }}
+                            {{ credential.reference.status }}
+                        </h4>
+                        <h5>
+                            {{ credential.credential_data }}
+                        </h5>
+                    {% endfor %}
+                </div>
+                <div>
+                    <h5>
+                        <a href="{% url 'lab4_request_proof' %}?connection_id={{connection.id}}">
+                            >>> Request Proof
+                        </a>
+                    </h5>
+                    {% for proof in connection.receivedproof_set.all %}
+                        <h4>
+                            {{ proof.proof_type.proof_req_name }}
+                            {{ proof.reference.conversation_type }}
+                            {{ proof.reference.status }}
+                        </h4>
+                        <h5>
+                            {{ proof.proof_data }}
+                        </h5>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class='newsfeed-post-seperator'></div>
+{% empty %}
+<h5>There are no connections</h5>
+{% endfor %}
+
         </div>
     </div>
 {% endblock %}
