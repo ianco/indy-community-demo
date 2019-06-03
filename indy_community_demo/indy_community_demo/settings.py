@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
+# Lab 4 Note that ubc_lab4 is included as a django module
 INSTALLED_APPS = [
     'indy_community.apps.IndyCoreConfig',
     'django.contrib.admin',
@@ -62,12 +63,16 @@ INDY_CONFIG = {
     'ledger_url': 'http://localhost:9000',
 }
 
+##############################################################
+# Lab 4 note that custom views are defined for the profile and data tabs
 INDY_PROFILE_VIEW = 'ubc_lab4.views.profile_view'
 INDY_DATA_VIEW = 'ubc_lab4.views.data_view'
 INDY_WALLET_VIEW = 'indy_community.views.wallet_view'
 
+# Lab 4 note that custom callbacks are defined for conversation and connection callbacks
 INDY_CONVERSATION_CALLBACK = 'ubc_lab4.views.conversation_callback'
 INDY_CONNECTION_CALLBACK = 'ubc_lab4.views.connection_callback'
+##############################################################
 
 BACKGROUND_TASK_RUN_ASYNC = False
 BACKGROUND_TASK_ASYNC_THREADS = 1

@@ -26,4 +26,14 @@ Province of BC:
   password: pass12345
   role: Goverment
   ico_url: https://www2.gov.bc.ca/favicon.ico
+##############################################################
+# Lab 4 - Step 2 add a new Organization here:
+Anon Training Company:
+  first_name: Anon
+  last_name: Training
+  email: train@mail.com
+  password: pass12345
+  role: Trainer
+  ico_url: https://anon-solutions.ca/favicon.ico
+##############################################################
 
